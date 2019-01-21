@@ -1,6 +1,6 @@
 import os
 
-from main import get_text_from_url
+from main_functions import get_text_from_url
 
 
 def generate_file_from_url(url: str):

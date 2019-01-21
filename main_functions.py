@@ -1,7 +1,7 @@
 from bs4 import BeautifulSoup
 import urllib.request
 from urllib.request import Request
-import functions
+import text_extraction
 
 
 def getInp(url):
@@ -16,4 +16,4 @@ def getInp(url):
 def get_text_from_url(url):
     htext = getInp(url)
     soup = BeautifulSoup(htext, "html.parser")
-    return functions.get_text(soup)
+    return text_extraction.get_text(soup)
