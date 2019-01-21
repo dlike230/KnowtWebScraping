@@ -71,6 +71,8 @@ def check(text):
 
 
 def checkIndividual(text):
+    if "°" in text and len(text) < 100:
+        return ""
     text = destroy_citations(text.replace("\r", "\n"))
     stripped = text.lower().strip("\n").strip("\t").strip(" ").strip("\r")
     if stripped in bad_phrases:
