@@ -1,10 +1,15 @@
+import os
 import pickle
 import random
 
 import sklearn
 from sklearn import svm
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.neural_network import MLPClassifier
+from sklearn.tree import DecisionTreeClassifier
 
 from main_functions import get_text_from_url
+from vectorize_language_data import vectorize
 
 WIKI_LANGUAGES = ["fr", "en", "ru", "es", "de", "nl"]
 
@@ -23,12 +28,21 @@ def random_from_lang(lang, n=100):
 def paired_data_generator(n_per_lang=100):
     for lang in WIKI_LANGUAGES:
         for page in random_from_lang(lang, n_per_lang):
-            yield 1 if lang == "en" else 0, page
+            print("Loading page in language %s" % lang)
+            yield (1 if lang == "en" else 0), page
 
 
 def paired_data(n_per_lang=100):
+    if os.path.isfile("wiki_language_data.pkl"):
+        print("Loading cached language data...")
+        result = pickle.load(open("wiki_language_data.pkl", "rb"))
+        print("Loaded cached language data")
+        return result
+    print("Loading language data...")
     result = [item for item in paired_data_generator(n_per_lang)]
+    print("Loaded language data. Saving...")
     pickle.dump(result, open("wiki_language_data.pkl", "wb"))
+    print("Saved language data")
     return result
 
 
@@ -41,7 +55,7 @@ def split_paired_data(data, prop_testing=0.25):
 
 
 def compute_input_output_split(data):
-    return [output for input_val, output in data], [output for input_val, output in data]
+    return [vectorize(input_val) for output, input_val in data], [output for output, input_val in data]
 
 
 def data_input_output_split(data, prop_testing=0.25):
@@ -50,14 +64,17 @@ def data_input_output_split(data, prop_testing=0.25):
 
 
 def train_model(training_vectors, training_labels):
-    model = svm.SVC()
+    model = RandomForestClassifier()
     model.fit(training_vectors, training_labels)
     pickle.dump(model, open("language_model.pkl", "wb"))
     return model
 
 
 def test_model(model, testing_vectors, testing_labels):
-    print("F-0.5 score of:", sklearn.metrics.fbeta_score(model.predict(testing_vectors), testing_labels, 0.5))
+    predicted_labels = model.predict(testing_vectors)
+    print(testing_labels)
+    print(predicted_labels)
+    print("F-0.5 score of:", sklearn.metrics.fbeta_score(predicted_labels, testing_labels, 0.5))
 
 
 if __name__ == "__main__":
