@@ -18,14 +18,14 @@ def url_gen(lang):
     return "https://%s.wikipedia.org/wiki/Special:Random" % lang
 
 
-def random_from_lang(lang, n=100):
+def random_from_lang(lang, n=500):
     url = url_gen(lang)
     for i in range(n):
         text = get_text_from_url(url)
         yield text
 
 
-def paired_data_generator(n_per_lang=100):
+def paired_data_generator(n_per_lang=500):
     for lang in WIKI_LANGUAGES:
         for page in random_from_lang(lang, n_per_lang):
             print("Loading page in language %s" % lang)
@@ -72,8 +72,6 @@ def train_model(training_vectors, training_labels):
 
 def test_model(model, testing_vectors, testing_labels):
     predicted_labels = model.predict(testing_vectors)
-    print(testing_labels)
-    print(predicted_labels)
     print("F-0.5 score of:", sklearn.metrics.fbeta_score(predicted_labels, testing_labels, 0.5))
 
 
